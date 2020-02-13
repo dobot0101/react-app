@@ -1,0 +1,23 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: #f9f8f8;
+}
+
+.menu {
+  overflow-y: scroll;
+  position: fixed;
+  height: 100%;
+  width: 200px;
+}
+
+.menu ul li {
+  list-style: none;
+}
+.contents {
+  margin-left: 200px;
+}

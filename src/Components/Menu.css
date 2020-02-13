@@ -1,0 +1,22 @@
+.menu {
+  background-color: white;
+}
+
+.menu ul {
+  padding: 0;
+  margin: 0;
+}
+
+.menu ul li {
+  font-size: 20px;
+  margin: 15px 20px;
+}
+
+.menu a {
+  text-decoration: none;
+  color: black;
+}
+
+.menu .active {
+  font-weight: bold;
+}
