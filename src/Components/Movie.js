@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import MovieItem from "../MovieItem";
+import MovieItem from "./MovieItem";
 import "./Movie.css";
 
 function Movie() {

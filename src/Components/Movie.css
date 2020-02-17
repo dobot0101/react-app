@@ -22,6 +22,11 @@
   font-weight: 400;
 }
 
+.movie a {
+  display: flex;
+  text-decoration: none;
+}
+
 .movie img {
   position: relative;
   max-width: 200px;
