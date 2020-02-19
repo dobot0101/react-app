@@ -8,22 +8,22 @@ function Menu() {
       <ul>
         <li>
           <NavLink exact to="/" activeClassName="active">
-            Home
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/movie" activeClassName="active">
-            Movie
+            영화
           </NavLink>
         </li>
         <li>
           <NavLink to="/news" activeClassName="active">
-            News
+            뉴스
           </NavLink>
         </li>
         <li>
           <NavLink to="/todo" activeClassName="active">
-            ToDo
+            일정관리
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/memo" activeClassName="active">
+            포스트잇
           </NavLink>
         </li>
       </ul>
