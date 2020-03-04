@@ -57,6 +57,38 @@ class Memo extends React.Component {
 
     //리로드 시 localStorage에 쪽지 저장
     window.addEventListener("beforeunload", this.setInfoToLocalStorage);
+
+    /**
+     * 20200304
+     * 쪽지 생성 시 전체 쪽지 이벤트 바인딩 -> 쪽지 초기화 시 한번만 이벤트 바인딩(동적 바인딩 처리)
+     * 쪽지 생성할 때마다 모든 쪽지 다시 이벤트 바인딩하는 방식이 비효율적이라고 생각하여 수정
+     */
+    //쪽지 위치 이동 관련 드래그 이벤트 처리
+    document.addEventListener(
+      "dragstart",
+      event => event.target.className === "memo_header" && this.dragStart(event)
+    );
+    document.addEventListener(
+      "dragend",
+      event => event.target.className === "memo_header" && this.dragEnd(event)
+    );
+
+    //쪽지 textarea focus 시 맨 위 표시 처리
+    document.addEventListener("focusin", event => {
+      event.target.className === "memo_textarea" && this.focusOnTextarea(event);
+    });
+
+    //X 버튼 클릭 시 쪽지 닫기 이벤트 처리
+    document.addEventListener("click", event => {
+      event.target.className === "memo_btn_close" && this.remove(event);
+    });
+
+    //쪽지 사이즈 변경 이벤트 처리
+    document.addEventListener(
+      "mousedown",
+      event =>
+        event.target.className === "memo_btn_size" && this.resizeStart(event)
+    );
   }
 
   //쪽지 삭제
@@ -87,45 +119,46 @@ class Memo extends React.Component {
         </div>
         </div>`;
 
-    //관련 이벤트 설정
-    this.initMemoEvent();
+    // //관련 이벤트 설정
+    // this.initMemoEvent();
   }
 
-  //쪽지 관련 이벤트 바인딩
-  initMemoEvent() {
-    //쪽지 위치 이동 이벤트 바인딩
-    this.bindEvent("memo_header", "dragstart", this.dragStart);
-    this.bindEvent("memo_header", "dragend", this.dragEnd, this);
+  //20200304, LDH, 쪽지 생성할 때마다 모든 쪽지 다시 이벤트 바인딩하는거 낭비라고 생각해서 동적 바인딩되게 수정
+  // //쪽지 관련 이벤트 바인딩
+  // initMemoEvent() {
+  //   //쪽지 위치 이동 이벤트 바인딩
+  //   this.bindEvent("memo_header", "dragstart", this.dragStart);
+  //   this.bindEvent("memo_header", "dragend", this.dragEnd, this);
 
-    //쪽지 수정 시 맨 위에 표시 이벤트 바인딩
-    this.bindEvent("memo_textarea", "focus", this.focusOnTextarea, true);
+  //   //쪽지 수정 시 맨 위에 표시 이벤트 바인딩
+  //   this.bindEvent("memo_textarea", "focus", this.focusOnTextarea, true);
 
-    //쪽지 닫기 이벤트 바인딩
-    this.bindEvent("memo_btn_close", "click", this.remove);
+  //   //쪽지 닫기 이벤트 바인딩
+  //   this.bindEvent("memo_btn_close", "click", this.remove);
 
-    //쪽지 크기 변경 이벤트 바인딩
-    this.bindEvent("memo_btn_size", "mousedown", this.resizeStart, true);
-  }
+  //   //쪽지 크기 변경 이벤트 바인딩
+  //   this.bindEvent("memo_btn_size", "mousedown", this.resizeStart, true);
+  // }
 
-  //클래스명으로 element 순회 이벤트 바인딩 함수
-  bindEvent(className, eventName, func, isArgThis = false) {
-    const elements = document.getElementsByClassName(className);
-    for (const element of elements) {
-      element.addEventListener(eventName, event => {
-        if (isArgThis) {
-          func(this, event);
-        } else {
-          func(event);
-        }
-      });
-    }
-  }
+  // //클래스명으로 element 순회 이벤트 바인딩 함수
+  // bindEvent(className, eventName, func, isArgThis = false) {
+  //   const elements = document.getElementsByClassName(className);
+  //   for (const element of elements) {
+  //     element.addEventListener(eventName, event => {
+  //       if (isArgThis) {
+  //         func(this, event);
+  //       } else {
+  //         func(event);
+  //       }
+  //     });
+  //   }
+  // }
 
   //textarea focus 시 맨 위 표시
-  focusOnTextarea(memo, event) {
+  focusOnTextarea(event) {
     const id = event.target.id.split("_")[1];
     document.getElementById(`memo_${id}`).style.zIndex =
-      memo.getMaxZIndex() + 1;
+      this.getMaxZIndex() + 1;
   }
 
   //마우스 오른쪽 버튼 클릭 시 쪽지 생성
@@ -159,7 +192,7 @@ class Memo extends React.Component {
   }
 
   //드래그앤 드랍 성공 시 위치 변경, 겹쳐진 쪽지 중 최상단 표시
-  dragEnd(memo, event) {
+  dragEnd(event) {
     const {
       clientX,
       clientY,
@@ -169,24 +202,22 @@ class Memo extends React.Component {
       dataTransfer: { dropEffect }
     } = event;
 
-    console.log(event);
-
     //dropEffect 값으로 드랍 성공 여부 확인
     //쪽지 위치, 표시 우선순위 변경
     if (dropEffect === "move") {
       style.top = clientY + "px";
       style.left = clientX + "px";
-      style.zIndex = memo.getMaxZIndex() + 1;
+      style.zIndex = this.getMaxZIndex() + 1;
     }
   }
 
   //크기 변경 버튼 클릭 시 실행 메소드
-  resizeStart(memo, event) {
+  resizeStart(event) {
     //마우스 왼쪽 클릭인지 확인
     const { which, button } = event;
     if (button === 0 && which === 1) {
       const id = event.target.id.split(`_`)[2];
-      const resizeFunc = event => memo.resize(event, id);
+      const resizeFunc = event => this.resize(event, id);
 
       //크기 변경 버튼 클릭한 상태에서 드래그 할 때에만 크기 변경되도록 이벤트 리스너 등록
       document.addEventListener("mousemove", resizeFunc);
